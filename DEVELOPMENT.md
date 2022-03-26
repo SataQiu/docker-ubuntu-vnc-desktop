@@ -9,6 +9,12 @@ or, if you have already cloned it, get submodules contents :
 git submodule init; git submodule update
 ```
 
+# Before Build Prepare 
+
+```
+bash ./hook/pre_build
+```
+
 # Test local code
 
 ## Test-run in container rebuilt from local repo

@@ -1,0 +1,12 @@
+[Unit]
+Description=tini
+
+[Service]
+ExecStart=/bin/tini -s -- supervisord -n -c /etc/supervisor/supervisord.conf
+Restart=always
+StartLimitInterval=0
+# NOTE: kind deviates from upstream here with a lower RestartSecuse
+RestartSec=1s
+
+[Install]
+WantedBy=multi-user.target

@@ -72,4 +72,8 @@ fi
 PASSWORD=
 HTTP_PASSWORD=
 
-exec /bin/tini -- supervisord -n -c /etc/supervisor/supervisord.conf
+# enable tini service
+systemctl enable tini
+
+# we want the command (expected to be systemd) to be PID1, so exec to it
+exec "$@"

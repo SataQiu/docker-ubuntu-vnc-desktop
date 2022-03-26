@@ -23,6 +23,12 @@ docker-ubuntu-vnc-desktop is a Docker image to provide web VNC interface to acce
 
 <!-- /code_chunk_output -->
 
+## Run My Own Dev Env
+
+```shell
+docker run -d --privileged -p 6080:80 -v /dev/shm:/dev/shm shidaqiu/ubuntu-desktop-lxde-vnc
+```
+
 ## Quick Start
 
 Run the docker container and access with port `6080`

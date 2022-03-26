@@ -62,6 +62,24 @@ ARG TINI_VERSION=v0.18.0
 ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /bin/tini
 RUN chmod +x /bin/tini
 
+RUN echo "Installing Packages ..." \
+      apt-get install -y --no-install-recommends \
+      systemd \
+      conntrack iptables iproute2 ethtool socat util-linux mount ebtables kmod \
+      libseccomp2 pigz \
+      ca-certificates curl rsync \
+      nfs-common fuse-overlayfs \
+      jq \
+    && find /lib/systemd/system/sysinit.target.wants/ -name "systemd-tmpfiles-setup.service" -delete \
+    && rm -f /lib/systemd/system/multi-user.target.wants/* \
+    && rm -f /etc/systemd/system/*.wants/* \
+    && rm -f /lib/systemd/system/local-fs.target.wants/* \
+    && rm -f /lib/systemd/system/sockets.target.wants/*udev* \
+    && rm -f /lib/systemd/system/sockets.target.wants/*initctl* \
+    && rm -f /lib/systemd/system/basic.target.wants/* \
+    && echo "ReadKMsg=no" >> /etc/systemd/journald.conf \
+    && ln -sf "$(which systemd)" /sbin/init
+
 # ffmpeg
 RUN apt update \
     && apt install -y --no-install-recommends --allow-unauthenticated \
@@ -134,4 +152,11 @@ WORKDIR /root
 ENV HOME=/home/ubuntu \
     SHELL=/bin/bash
 HEALTHCHECK --interval=30s --timeout=5s CMD curl --fail http://127.0.0.1:6079/api/health
-ENTRYPOINT ["/startup.sh"]
+
+# tell systemd that it is in docker (it will check for the container env)
+# https://systemd.io/CONTAINER_INTERFACE/
+ENV container docker
+# systemd exits on SIGRTMIN+3, not SIGTERM (which re-executes it)
+# https://bugzilla.redhat.com/show_bug.cgi?id=1201657
+STOPSIGNAL SIGRTMIN+3
+ENTRYPOINT [ "/startup.sh", "/sbin/init" ]
